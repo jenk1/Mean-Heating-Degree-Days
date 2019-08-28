@@ -14,7 +14,7 @@ regYrEnd = [31,59,90,120,151,181,212,243,273,304,334,365]
 leapYrStart = [0,31,60,91,121,152,182,213,244,274,305,335]
 leapYrEnd = [31,60,91,121,152,182,213,244,274,304,334,365]
 
-def first_year(data, jan, dec, average):
+def first_year(data, jan = None, dec = None, average = None):
     if(jan is None):
         jan = []
     if(dec is None):
@@ -61,7 +61,6 @@ def comb_data(start, end, dataframe, month1=None, month2=None, average=None):
     """
 
     """
-
     jan, dec, avgMonth = first_year(dataframe, month1, month2, average)
 
     for i in range(start+1, end+1):
