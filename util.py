@@ -14,17 +14,26 @@ regYrEnd = [31,59,90,120,151,181,212,243,273,304,334,365]
 leapYrStart = [0,31,60,91,121,152,182,213,244,274,305,335]
 leapYrEnd = [31,60,91,121,152,182,213,244,274,304,334,365]
 
-def first_year(x, jan, dec, avg):
+def first_year(data, jan, dec, average):
+    if(jan is None):
+        jan = []
+    if(dec is None):
+        dec = []
+    if(average is None):
+        average = []
+
     for k in jan_range:
-        jan.append(x.iloc[9,k])
+        jan.append(data.iloc[9,k])
     for k in dec_rangeReg:
-        dec.append(x.iloc[9,k])
+        dec.append(data.iloc[9,k])
 
     for j, k in zip(regYrStart, regYrEnd):
-        z = x.iloc[9,j:k]
-        avg.append(z.mean())
+        z = data.iloc[9,j:k]
+        average.append(z.mean())
 
-def avgInput(year, dataframe, jan, dec, avg):
+    return(jan, dec, average)
+
+def avgInput(year, dataframe, month, month2, average):
     """
 
     """
@@ -32,38 +41,34 @@ def avgInput(year, dataframe, jan, dec, avg):
     if(calendar.isleap(year)):
         for j, k in zip(leapYrStart, leapYrEnd):
             z = dataframe.iloc[9,j:k]
-            avg.append(z.mean())
+            average.append(z.mean())
         for k in jan_range:
-            jan.append(dataframe.iloc[9,k])
+            month.append(dataframe.iloc[9,k])
         for k in dec_rangeLeap:
-            dec.append(dataframe.iloc[9,k])
+            month2.append(dataframe.iloc[9,k])
     else:
         for j, k in zip(regYrStart, regYrEnd):
             z = dataframe.iloc[9,j:k]
-            avg.append(z.mean())
+            average.append(z.mean())
         for k in jan_range:
-            jan.append(dataframe.iloc[9,k])
+            month.append(dataframe.iloc[9,k])
         for k in dec_rangeReg:
-            dec.append(dataframe.iloc[9,k])
+            month2.append(dataframe.iloc[9,k])
 
-def comb_data(start, end, x, month1=None, month2=None, average=None):
+    return(month, month2, average)
+
+def comb_data(start, end, dataframe, month1=None, month2=None, average=None):
     """
 
     """
-    if(month1 is None):
-        month1 = []
-    if(month2 is None):
-        month2 = []
-    if(average is None):
-        average
 
-    first_year(x, month1, month2, average)
+    jan, dec, avgMonth = first_year(dataframe, month1, month2, average)
 
-    for i in range(start, end+1):
+    for i in range(start+1, end+1):
         y = pd.read_csv("ftp://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/{}/Population.Heating.txt".format(i), delimiter="|", skiprows=[0,1,2])
         y = y.set_index('Region')
-        result = pd.concat([x,y], axis=1)
-        x = result
+        result = pd.concat([dataframe,y], axis=1)
+        dataframe = result
 
-        avgInput(i, y, month1, month2, average)
-    return(x)
+        avgInput(i, y, jan, dec, avgMonth)
+    return(dataframe, np.asarray(jan), np.asarray(dec), np.asarray(avgMonth))
